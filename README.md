@@ -17,7 +17,7 @@
 - **Automatic Rewards**: Configurable interval (default: 10 minutes)
 - **Randomized Rewards**:
   - 💰 **Money**: $100-300 (85% chance)
-  - 🪙 **Items**: rcoin 1-2x (15% chance)
+  - 🪙 **Items**: water 1-2x (15% chance)
 - **Anti-Cheat Protection**: Server-side validation with automatic ban system
 
 ### 🛡️ Security Features
