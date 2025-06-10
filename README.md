@@ -4,6 +4,8 @@
 
 **NOXEN AFK System** is a comprehensive FiveM script that allows players to enter AFK (Away From Keyboard) mode with an automatic reward system. The script provides an immersive experience with interactive NPCs, modern UI, and advanced security features.
 
+**🔌 Plug & Play**: Compatible with ESX and QB-Core without additional modifications.
+
 ## ✨ Key Features
 
 ### 🎯 AFK System
@@ -28,6 +30,7 @@
 
 ### 🔌 Framework Integration
 - **ESX Legacy**: Full compatibility with ESX framework
+- **QB-Core**: Full compatibility with QB-Core framework
 - **PMA Voice**: Automatic voice mute during AFK
 - **ESX Status**: Configurable needs management (hunger/thirst)
 - **Web Interface**: Smooth fade transitions and visual feedback
@@ -91,7 +94,7 @@ Config.Messages = {
 ## 🔧 Installation
 
 ### Prerequisites
-- **ESX Legacy** (Required)
+- **ESX Legacy** or **QB-Core** (Required - Choose one)
 - **PMA Voice** (Optional - for voice mute feature)
 - **ESX Status** (Optional - for needs management)
 
@@ -208,7 +211,7 @@ end
 ### Anti-Cheat Measures
 - **Server-Side Validation**: All rewards validated on server
 - **Cooldown Protection**: Minimum 5-minute intervals between rewards
-- **Automatic Banning**: Instant ban for exploitation attempts
+- **Automatic Kicking**: Instant kick for exploitation attempts
 - **Data Cleanup**: Automatic removal of disconnected player data
 
 ### Monitoring Features
@@ -224,7 +227,7 @@ end
 | Issue | Solution |
 |-------|----------|
 | **NPCs not spawning** | Check model loading, restart script |
-| **Rewards not working** | Verify ESX configuration, check server logs |
+| **Rewards not working** | Verify ESX/QB-Core configuration, check server logs |
 | **UI not visible** | Ensure HTML files present, restart client |
 | **Position not saving** | Customize `EnablePositionSaving()` function |
 | **Players dying in AFK** | Customize `PauseAllStatus()` function |
@@ -252,8 +255,7 @@ end
 
 ### Version Information
 - **Current Version**: 1.0.0
-- **Compatibility**: ESX Legacy
-- **Last Updated**: 2024
+- **Compatibility**: ESX Legacy & QB-Core
 
 ### Maintenance Tips
 - Regular log monitoring
@@ -270,9 +272,9 @@ end
 4. **Test Functions**: Verify custom function implementation
 
 ### Support Channels
+- **Discord**: [Join Noxen Community](https://discord.com/invite/a9d5k3GUen)
 - Check server logs for error messages
-- Verify ESX framework compatibility
-- Test with minimal configuration first
+- Verify ESX/QB-Core framework compatibility
 
 ## 📄 License
 
