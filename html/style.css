@@ -1,0 +1,98 @@
+#afk-timer {
+    position: fixed;
+    left: 0.73vw;
+    bottom: 18.75vw;
+    width: 15.625vw;
+    height: 1.67vw;
+    background: linear-gradient(90deg, 
+        rgba(0, 0, 0, 0.25) 0%, 
+        rgba(0, 0, 0, 0.35) 15%, 
+        rgba(0, 0, 0, 0) 50%, 
+        rgba(0, 0, 0, 0.25) 100%
+    );
+    border: 0.052vw solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.21vw;
+    transform: translateX(-200%);
+    transition: all 0.5s ease-in-out;
+    display: flex;
+    overflow: hidden;
+}
+
+#afk-timer.visible {
+    transform: translateX(0);
+}
+
+.side-banner {
+    width: 1.04vw;
+    background: rgba(255, 255, 255, 0.03);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.21vw 0 0 0.21vw;
+}
+
+.zone-text {
+    font-family: 'Mohave', sans-serif;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.573vw;
+    font-weight: 500;
+    white-space: nowrap;
+    transform: rotate(-90deg);
+    text-transform: uppercase;
+    letter-spacing: 0.052vw;
+}
+
+.timer-content {
+    flex: 1;
+    padding: 0 0.73vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 5.21vw;
+    width: auto;
+}
+
+.timer-info {
+    position: relative;
+    z-index: 2;
+}
+
+.timer-label {
+    font-family: 'Mohave', sans-serif;
+    font-weight: 500;
+    font-size: 0.573vw;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.026vw;
+    text-transform: uppercase;
+}
+
+.timer-countdown {
+    font-family: 'Mohave', sans-serif;
+    font-weight: 700;
+    font-size: 0.833vw;
+    color: white;
+    padding: 0.104vw 0.417vw;
+    border-radius: 0.156vw;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+#fade-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-in-out;
+    z-index: 9999;
+} 
