@@ -2,7 +2,7 @@
 -- NOXEN AFK - CLIENT FUNCTIONS
 -- ============================================
 -- This file contains functions that you must customize according to your server
--- Replace the print() statements with your own logic
+-- Replace the DebugPrint() statements with your own logic
 
 -- ============================================
 -- POSITION SAVING FUNCTION
@@ -16,9 +16,9 @@ function EnablePositionSaving(enable)
     if enable then
         -- HERE: Implement your logic to ENABLE position saving (when leaving AFK)
         -- This ensures players return to their original position, not the AFK zone
-        print("[NOXEN AFK] FUNCTION TO CUSTOMIZE: Enabling position saving")
-        print("[NOXEN AFK] INFO: This prevents spawning in AFK zone after disconnect/reconnect")
-        print("[NOXEN AFK] TODO: Implement your logic here to restore original position")
+        DebugPrint("[NOXEN AFK] FUNCTION TO CUSTOMIZE: Enabling position saving")
+        DebugPrint("[NOXEN AFK] INFO: This prevents spawning in AFK zone after disconnect/reconnect")
+        DebugPrint("[NOXEN AFK] TODO: Implement your logic here to restore original position")
         
         -- Example of what you could do:
         -- TriggerEvent('your_script:restorePosition')
@@ -28,9 +28,9 @@ function EnablePositionSaving(enable)
     else
         -- HERE: Implement your logic to DISABLE position saving (when entering AFK)
         -- This saves the original position before teleporting to AFK zone
-        print("[NOXEN AFK] FUNCTION TO CUSTOMIZE: Disabling position saving")
-        print("[NOXEN AFK] INFO: Saving original position before AFK teleportation")
-        print("[NOXEN AFK] TODO: Implement your logic here to save current position")
+        DebugPrint("[NOXEN AFK] FUNCTION TO CUSTOMIZE: Disabling position saving")
+        DebugPrint("[NOXEN AFK] INFO: Saving original position before AFK teleportation")
+        DebugPrint("[NOXEN AFK] TODO: Implement your logic here to save current position")
         
         -- Example of what you could do:
         -- local coords = GetEntityCoords(PlayerPedId())
@@ -52,9 +52,9 @@ function PauseAllStatus(pause)
     if pause then
         -- HERE: Implement your logic to PAUSE all status (when entering AFK)
         -- This keeps hunger/thirst at current levels to prevent death during AFK
-        print("[NOXEN AFK] FUNCTION TO CUSTOMIZE: Pausing all status")
-        print("[NOXEN AFK] INFO: Maintains hunger/thirst levels during AFK")
-        print("[NOXEN AFK] TODO: Pause needs or set them to 100% as desired")
+        DebugPrint("[NOXEN AFK] FUNCTION TO CUSTOMIZE: Pausing all status")
+        DebugPrint("[NOXEN AFK] INFO: Maintains hunger/thirst levels during AFK")
+        DebugPrint("[NOXEN AFK] TODO: Pause needs or set them to 100% as desired")
         
         -- Examples of what you could do:
         -- Option 1: Pause status at current levels (RECOMMENDED)
@@ -78,9 +78,9 @@ function PauseAllStatus(pause)
     else
         -- HERE: Implement your logic to RESUME all status (when leaving AFK)
         -- This resumes normal hunger/thirst decrease after leaving AFK
-        print("[NOXEN AFK] FUNCTION TO CUSTOMIZE: Resuming all status")
-        print("[NOXEN AFK] INFO: Resuming normal hunger/thirst decrease")
-        print("[NOXEN AFK] TODO: Resume normal needs system")
+        DebugPrint("[NOXEN AFK] FUNCTION TO CUSTOMIZE: Resuming all status")
+        DebugPrint("[NOXEN AFK] INFO: Resuming normal hunger/thirst decrease")
+        DebugPrint("[NOXEN AFK] TODO: Resume normal needs system")
         
         -- Examples of what you could do:
         -- Option 1: Resume normal status decrease (if you used pause)

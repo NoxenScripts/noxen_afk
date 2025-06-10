@@ -1,24 +1,49 @@
 let timerInterval;
+let currentMessage = "";
+let currentReward = "";
 
 window.addEventListener('message', function(event) {
     let item = event.data;
 
     if (item.type === "showTimer") {
-        document.getElementById('afk-timer').classList.add('visible');
+        const timerElement = document.getElementById('afk-timer');
+        
+        if (item.position) {
+            timerElement.style.bottom = item.position.bottom;
+            timerElement.style.left = item.position.left;
+        }
+        
+        currentMessage = item.message;
+        currentReward = item.reward;
+        
+        updateTexts();
+        
+        timerElement.classList.add('visible');
         startTimer(item.duration);
     } else if (item.type === "hideTimer") {
         document.getElementById('afk-timer').classList.remove('visible');
         if (timerInterval) {
             clearInterval(timerInterval);
         }
-    } else if (item.type === "showReward") {
-        showReward(item.amount, item.rewardType);
+
     } else if (item.type === "fadeOut") {
         fadeOut();
     } else if (item.type === "fadeIn") {
         fadeIn();
     }
 });
+
+function updateTexts() {
+    const zoneText = document.querySelector('.zone-text');
+    const timerLabel = document.querySelector('.timer-label');
+    
+    if (zoneText && currentMessage) {
+        zoneText.textContent = currentMessage;
+    }
+    if (timerLabel && currentReward) {
+        timerLabel.textContent = currentReward;
+    }
+}
 
 function startTimer(duration) {
     let timer = duration;
@@ -35,6 +60,8 @@ function startTimer(duration) {
 
         document.querySelector('.timer-countdown').textContent = minutes + ":" + seconds;
 
+        updateTexts();
+
         if (--timer < 0) {
             timer = duration;
         }
@@ -42,20 +69,6 @@ function startTimer(duration) {
 
     updateTimer();
     timerInterval = setInterval(updateTimer, 1000);
-}
-
-function showReward(amount, type) {
-    const rewardText = document.querySelector('.reward-text');
-    rewardText.textContent = `+ ${amount}$ ${type === 'money' ? 'en espèces' : 'en banque'}`;
-    rewardText.classList.remove('show');
-    
-    void rewardText.offsetWidth;
-    
-    rewardText.classList.add('show');
-    
-    setTimeout(() => {
-        rewardText.classList.remove('show');
-    }, 3000);
 }
 
 function fadeOut() {

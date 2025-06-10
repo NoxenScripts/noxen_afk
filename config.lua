@@ -1,6 +1,10 @@
 Config = {}
 
-Config.AfkPeds = {
+Config.core = 'QB' -- ESX or QB
+Config.debug = false -- true or false
+
+-- AFK Peds Coords (You can add more peds if you want)
+Config.AfkPeds = { 
     {
         model = "a_m_m_soucent_01",
         coords = vector3(1095.1377, 2633.0056, 38.0120-0.97), -- Route 68
@@ -39,7 +43,8 @@ Config.AfkPeds = {
     }
 }
 
-Config.AfkZones = {
+-- AFK Zones Coords (You can add more zones if you want)
+Config.AfkZones = { 
     main = {
         coords = vector3(-1266.0729, -3013.6370, -46.8537),
         heading = 0.0,
@@ -48,7 +53,8 @@ Config.AfkZones = {
     }
 }
 
-Config.AfkExitCrash = {
+-- AFK Exit Crash Coords (You can add more crash if you want)
+Config.AfkExitCrash = { 
     coords = vector4(256.7451171875, -784.67425537109, 30.492626190186, 60.892784118652),
 }
 
@@ -60,7 +66,8 @@ Config.AfkExitPed = {
     chairModel = "prop_chair_01a"                             -- Chair model
 }
 
-Config.Rewards = {
+-- Rewards (You can add more rewards if you want)
+Config.Rewards = { 
     {
         type = "money",
         min = 100,
@@ -70,17 +77,27 @@ Config.Rewards = {
     {
         type = "item",
         items = {
-            {name = "water", min = 1, max = 2, chance = 15},  -- 15% chance to get an item
+            {name = "beer", min = 1, max = 2, chance = 15},  -- 15% chance to get an item
         }
     }
 }
 
--- Reward interval in minutes
-Config.RewardInterval = 10
-Config.TeleportDelay = 1
+Config.RewardInterval = 10 -- Reward interval in minutes
+Config.TeleportDelay = 1 -- Teleport delay in minutes
 
--- Messages
+-- UI Position Configuration
+Config.UI = {
+    timer = {
+        bottom = "18.75vw",  -- Position from bottom
+        left = "0.73vw"      -- Position from left
+    }
+}
+
+-- Translations
 Config.Messages = {
+    afk = "AFK",
+    reward = "REWARD IN",
+    teleport_city = "Vous avez été téléporté en ville",
     starting_afk = "You will be teleported to the AFK zone in 1 minute...",
     teleported = "You are now in AFK mode",
     reward_received = "You received %s",
@@ -88,5 +105,17 @@ Config.Messages = {
     point_gps = "~g~GPS ~w~point created to the nearest AFK zone",
     no_afk_zone = "No ~r~AFK zone ~w~found",
     already_afk = "You are already in AFK mode",
-    afk_exit_blip = "A ~g~doctor~s~ is sitting on a chair. Talk to him to exit the AFK zone."
+    afk_exit_blip = "A ~g~doctor~s~ is sitting on a chair. Talk to him to exit the AFK zone.",
+    your_died = "You died, you're left the AFK zone",
+    money_reward = "%d$ in cash",
+    quit_afk = "Leave AFK ~b~[E]~s~",
+    zone_afk = "AFK Zone ~b~[E]~s~",
+    return_city = "Return to city ~b~[E]~s~"
 } 
+
+-- Debug Print
+function DebugPrint(text, ...)
+    if Config.debug then
+        print(text, ...)
+    end
+end

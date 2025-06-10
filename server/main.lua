@@ -1,15 +1,27 @@
-ESX = nil
-ESX = exports['es_extended']:getSharedObject()
+if Config.core == "ESX" then
+    ESX = exports["es_extended"]:getSharedObject()
+elseif Config.core == "QB" then
+    QBCore = exports['qb-core']:GetCoreObject()
+end
 
 local frozenPlayers = {}
 local lastRewardTime = {}
 
-local function GiveRandomReward(xPlayer)
-    local playerId = xPlayer.source
+local function GiveRandomReward(xPlayer, sourceId)
+    local playerId = sourceId or (Config.core == "ESX" and xPlayer.source or xPlayer.PlayerData.source)
+    
+    if not playerId then
+        DebugPrint("Error: playerId is nil, xPlayer:", xPlayer, "sourceId:", sourceId)
+        return false
+    end
+    
+    DebugPrint("playerId: ", playerId)
 
     local currentTime = os.time()
-    if lastRewardTime[playerId] and (currentTime - lastRewardTime[playerId]) < 300 then
-        DropPlayer(playerId, "????") -- Passer en ban auto si pas de faux kick
+    local rewardCooldown = (Config.RewardInterval) * 60
+    if lastRewardTime[playerId] and (currentTime - lastRewardTime[playerId]) < rewardCooldown then
+        DebugPrint("Anti-spam kick for player:", playerId, "Time left:", rewardCooldown - (currentTime - lastRewardTime[playerId]), "seconds")
+        DropPlayer(playerId, "Kick Auto - Anti-spam")
         return false
     end
 
@@ -54,17 +66,52 @@ local function GiveRandomReward(xPlayer)
         local rewardMessage = ""
 
         if selectedReward.type == "money" then
-            xPlayer.addMoney(amount)
-            rewardMessage = string.format("%d$ en espèces", amount)
+            if Config.core == "ESX" then
+                xPlayer.addMoney(amount)
+            elseif Config.core == "QB" then
+                xPlayer.Functions.AddMoney('cash', amount)
+            end
+            rewardMessage = string.format(Config.Messages.money_reward, amount)
         else
-            xPlayer.addInventoryItem(selectedReward.name, amount)
-            local itemLabel = ESX.GetItemLabel(selectedReward.name)
+            local itemExists = false
+            local itemLabel = selectedReward.name
+            
+            if Config.core == "ESX" then
+                itemLabel = ESX.GetItemLabel(selectedReward.name)
+                itemExists = itemLabel ~= nil
+                if itemExists then
+                    xPlayer.addInventoryItem(selectedReward.name, amount)
+                end
+            elseif Config.core == "QB" then
+                local itemData = QBCore.Shared.Items[selectedReward.name]
+                itemExists = itemData ~= nil
+                if itemExists then
+                    itemLabel = itemData.label
+                    xPlayer.Functions.AddItem(selectedReward.name, amount)
+                else
+                    DebugPrint("Item does not exist in QBCore:", selectedReward.name)
+                end
+            end
+            
+            if not itemExists then
+                DebugPrint("Skipping invalid item reward:", selectedReward.name)
+                return false
+            end
+            
             rewardMessage = string.format("%dx %s", amount, itemLabel)
         end
 
+        DebugPrint("currentTime: ", currentTime)
         lastRewardTime[playerId] = currentTime
-        TriggerClientEvent('afk:rewardReceived', playerId, amount, selectedReward.type)
-        TriggerClientEvent('esx:showNotification', playerId, string.format(Config.Messages.reward_received, rewardMessage))
+        
+        local rewardMsg = Config.Messages and Config.Messages.reward_received or "You have received: %s"
+        local finalMessage = string.format(rewardMsg, rewardMessage)
+        
+        if Config.core == "ESX" then
+            TriggerClientEvent('esx:showNotification', playerId, finalMessage)
+        elseif Config.core == "QB" then
+            TriggerClientEvent('QBCore:Notify', playerId, finalMessage)
+        end
         return true
     end
 
@@ -73,46 +120,47 @@ end
 
 RegisterNetEvent('afk:freezeStats', function()
     local source = source
-    local xPlayer = ESX.GetPlayerFromId(source)
-    --print("FreezeStats pour", source)
+    local xPlayer = Config.core == "ESX" and ESX.GetPlayerFromId(source) or QBCore.Functions.GetPlayer(source)
+    DebugPrint("FreezeStats for player: ", source)
 
     if xPlayer then
         frozenPlayers[source] = true
-        --print("Joueur marqué comme AFK:", source, "FrozenPlayers:", json.encode(frozenPlayers))
+        DebugPrint("Player marked as AFK:", source, "FrozenPlayers:", json.encode(frozenPlayers))
     end
 end)
 
 RegisterNetEvent('afk:unfreezeStats', function()
     local source = source
-    local xPlayer = ESX.GetPlayerFromId(source)
-    --print("UnfreezeStats pour", source)
+    local xPlayer = Config.core == "ESX" and ESX.GetPlayerFromId(source) or QBCore.Functions.GetPlayer(source)
+    DebugPrint("UnfreezeStats for player: ", source)
 
     if xPlayer and frozenPlayers[source] then
         frozenPlayers[source] = nil
-        --print("Joueur retiré de l'AFK:", source, "FrozenPlayers:", json.encode(frozenPlayers))
+        DebugPrint("Player removed from AFK:", source, "FrozenPlayers:", json.encode(frozenPlayers))
     end
 end)
 
 RegisterNetEvent('afk:giveReward', function()
     local source = source
-    --print("Réception de afk:giveReward de", source)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    --print("xPlayer trouvé:", xPlayer ~= nil)
-    --print("frozenPlayers pour source:", frozenPlayers[source] ~= nil)
+    DebugPrint("Received afk:giveReward from: ", source)
+    local xPlayer = Config.core == "ESX" and ESX.GetPlayerFromId(source) or QBCore.Functions.GetPlayer(source)
+    DebugPrint("xPlayer found: ", xPlayer ~= nil)
+    DebugPrint("frozenPlayers for source: ", frozenPlayers[source] ~= nil)
 
     if xPlayer and frozenPlayers[source] then
-        --print("GiveReward pour", source)
-        GiveRandomReward(xPlayer)
+        DebugPrint("GiveReward for: ", source)
+        DebugPrint("xPlayer.source: ", xPlayer.source)
+        GiveRandomReward(xPlayer, source)
     else
-        --print("Tentative de récompense non autorisée pour", source)
-        --print("État frozenPlayers:", json.encode(frozenPlayers))
+        DebugPrint("Attempt to give reward not authorized for: ", source)
+        DebugPrint("frozenPlayers stat: ", json.encode(frozenPlayers))
     end
 end)
 
 AddEventHandler('playerDropped', function()
     local source = source
     if frozenPlayers[source] then
-        --print("Nettoyage des données pour", source)
+        DebugPrint("Cleaning data for: ", source)
         frozenPlayers[source] = nil
     end
 

@@ -7,7 +7,11 @@ local lastInteractionTime = 0
 local isProcessingAfk = false
 local deathMonitorThread = nil
 
-local ESX = exports['es_extended']:getSharedObject()
+if Config.core == "ESX" then
+    ESX = exports['es_extended']:getSharedObject()
+elseif Config.core == "QB" then
+    QBCore = exports['qb-core']:GetCoreObject()
+end
 
 function StartDisablingControls()
     if controlsThread then
@@ -59,14 +63,12 @@ Citizen.CreateThread(function()
         local playerCoords = GetEntityCoords(playerPed)
         local isNearAnyPed = false
 
-        -- Gestion du PED de sortie AFK (toujours présent)
         local distance = #(playerCoords - chairCoords)
         
         if distance < 20.0 then
             isNearAnyPed = true
             sleep = 0
 
-            -- Création du PED s'il n'existe pas
             if not spawnedPeds[afkExitPedId] then
                 local pedModel = Config.AfkExitPed.pedModel
                 local chairModel = Config.AfkExitPed.chairModel
@@ -106,7 +108,6 @@ Citizen.CreateThread(function()
                 spawnedPeds[afkExitPedId] = ped
             end
 
-            -- Affichage du marqueur et du texte
             if distance <= 10.0 then
                 if distance <= 10.0 then
                     markerAlpha = math.min(255, markerAlpha + 5)
@@ -137,34 +138,34 @@ Citizen.CreateThread(function()
                     SetTextScale(0.4, 0.4)
                     SetTextColour(255, 255, 255, textAlpha)
                     BeginTextCommandDisplayText('STRING')
-                    AddTextComponentSubstringPlayerName(isInAfk and "Quitter AFK ~b~[E]~s~" or "Retour en ville ~b~[E]~s~")
+                    AddTextComponentSubstringPlayerName(isInAfk and Config.Messages.quit_afk or Config.Messages.return_city)
                     EndTextCommandDisplayText(0.0, 0.0)
                     ClearDrawOrigin()
                 end
 
-                -- Interaction avec le PED
                 if distance < 3.0 then
-                    if IsControlJustReleased(0, 38) then -- Touche E
+                    if IsControlJustReleased(0, 38) then
                         local currentTime = GetGameTimer()
                         if currentTime - lastInteractionTime > 3000 and not isProcessingAfk then
                             lastInteractionTime = currentTime
                             if isInAfk then
                                 StopAfk()
                             else
-                                -- Téléporter le joueur vers le point de crash exit
                                 local crashCoords = Config.AfkExitCrash.coords
                                 SetEntityCoords(playerPed, crashCoords.x, crashCoords.y, crashCoords.z)
                                 SetEntityHeading(playerPed, crashCoords.w)
-                                ESX.ShowNotification("Vous avez été téléporté en ville")
+                                if Config.core == "ESX" then
+                                    ESX.ShowNotification(Config.Messages.teleport_city)
+                                elseif Config.core == "QB" then
+                                    QBCore.Functions.Notify(Config.Messages.teleport_city)
+                                end
                             end
                         end
                     end
                 end
             end
         else
-            -- Ne pas supprimer le PED de sortie AFK, il doit rester présent
             if spawnedPeds[afkExitPedId] and distance > 20.0 then
-                -- On le supprime seulement si le joueur est très loin
                 if chair ~= nil then
                     DeleteEntity(chair)
                     chair = nil
@@ -178,7 +179,6 @@ Citizen.CreateThread(function()
             end
         end
 
-        -- Gestion des PEDs d'entrée AFK
         for _, pedInfo in ipairs(Config.AfkPeds) do
             local distance = #(playerCoords - pedInfo.coords)
             local pedId = pedInfo.coords.x .. pedInfo.coords.y .. pedInfo.coords.z
@@ -229,7 +229,7 @@ Citizen.CreateThread(function()
                     SetTextScale(0.4, 0.4)
                     SetTextColour(255, 255, 255, textAlpha)
                     BeginTextCommandDisplayText('STRING')
-                    AddTextComponentSubstringPlayerName(isInAfk and "Quitter AFK ~b~[E]~s~" or "Zone AFK ~b~[E]~s~")
+                    AddTextComponentSubstringPlayerName(isInAfk and Config.Messages.quit_afk or Config.Messages.zone_afk)
                     EndTextCommandDisplayText(0.0, 0.0)
                     ClearDrawOrigin()
                 end
@@ -268,13 +268,17 @@ end)
 function StartAfk()
     if not isInAfk and not isProcessingAfk then
         isProcessingAfk = true
-        print("Démarrage de StartAfk")
-        ESX.ShowNotification(Config.Messages.starting_afk)
+        DebugPrint("Starting AFK")
+        if Config.core == "ESX" then
+            ESX.ShowNotification(Config.Messages.starting_afk)
+        elseif Config.core == "QB" then
+            QBCore.Functions.Notify(Config.Messages.starting_afk)
+        end
 
         originalPosition = GetEntityCoords(PlayerPedId())
 
         Citizen.SetTimeout(Config.TeleportDelay * 60 * 1000, function()
-            print("Après le délai de téléportation")
+            DebugPrint("After teleport delay")
             isInAfk = true
             isProcessingAfk = false
             currentZone = next(Config.AfkZones)
@@ -298,7 +302,13 @@ function StartAfk()
 
             SendNUIMessage({
                 type = "showTimer",
-                duration = Config.RewardInterval * 60
+                duration = Config.RewardInterval * 60,
+                message = Config.Messages.afk,
+                reward = Config.Messages.reward,
+                position = {
+                    bottom = Config.UI.timer.bottom,
+                    left = Config.UI.timer.left
+                }
             })
 
             Citizen.Wait(500)
@@ -307,12 +317,14 @@ function StartAfk()
                 type = "fadeIn"
             })
 
-            ESX.ShowNotification(Config.Messages.teleported)
+            if Config.core == "ESX" then
+                ESX.ShowNotification(Config.Messages.teleported)
+            elseif Config.core == "QB" then
+                QBCore.Functions.Notify(Config.Messages.teleported)
+            end
             PauseAllStatus(true)
 
-            print("Avant StartRewardTimer")
             StartRewardTimer()
-            print("Après StartRewardTimer")
         end)
     end
 end
@@ -320,7 +332,7 @@ end
 function StopAfk()
     if isInAfk and not isProcessingAfk then
         isProcessingAfk = true
-        print("Arrêt de l'AFK")
+        DebugPrint("Stopping AFK")
         SendNUIMessage({
             type = "fadeOut"
         })
@@ -329,7 +341,7 @@ function StopAfk()
 
         isInAfk = false
         isProcessingAfk = false
-        print("isInAfk mis à false")
+        DebugPrint("isInAfk set to false")
         PauseAllStatus(false)
         TriggerServerEvent('afk:unfreezeStats')
         if originalPosition then
@@ -347,19 +359,23 @@ function StopAfk()
             type = "fadeIn"
         })
 
-        ESX.ShowNotification(Config.Messages.stopped_afk)
+        if Config.core == "ESX" then
+            ESX.ShowNotification(Config.Messages.stopped_afk)
+        elseif Config.core == "QB" then
+            QBCore.Functions.Notify(Config.Messages.stopped_afk)
+        end
     end
 end
 
 function StartRewardTimer()
-    print("Démarrage de StartRewardTimer")
+    DebugPrint("Starting StartRewardTimer")
     Citizen.CreateThread(function()
-        print("Thread StartRewardTimer créé")
+        DebugPrint("Thread StartRewardTimer created")
         while isInAfk do
-            print("Dans la boucle StartRewardTimer", isInAfk)
+            DebugPrint("In StartRewardTimer loop", isInAfk)
             Citizen.Wait(Config.RewardInterval * 60 * 1000)
             if isInAfk then
-                print("Envoi de la récompense")
+                DebugPrint("Sending reward")
                 TriggerServerEvent('afk:giveReward')
 
                 SendNUIMessage({
@@ -368,7 +384,7 @@ function StartRewardTimer()
                 })
             end
         end
-        print("Sortie de la boucle StartRewardTimer")
+        DebugPrint("Exiting StartRewardTimer loop")
     end)
 end
 
@@ -383,7 +399,11 @@ end)
 
 RegisterCommand('afk', function()
     if isInAfk then
-        ESX.ShowNotification(Config.Messages.already_afk)
+        if Config.core == "ESX" then
+            ESX.ShowNotification(Config.Messages.already_afk)
+        elseif Config.core == "QB" then
+            QBCore.Functions.Notify(Config.Messages.already_afk)
+        end
         return
     end
 
@@ -403,9 +423,17 @@ RegisterCommand('afk', function()
 
     if closestPed then
         SetNewWaypoint(closestPed.coords.x, closestPed.coords.y)
-        ESX.ShowNotification(Config.Messages.point_gps)
+        if Config.core == "ESX" then
+            ESX.ShowNotification(Config.Messages.point_gps)
+        elseif Config.core == "QB" then
+            QBCore.Functions.Notify(Config.Messages.point_gps)
+        end
     else
-        ESX.ShowNotification(Config.Messages.no_afk_zone)
+        if Config.core == "ESX" then
+            ESX.ShowNotification(Config.Messages.no_afk_zone)
+        elseif Config.core == "QB" then
+            QBCore.Functions.Notify(Config.Messages.no_afk_zone)
+        end
     end
 end, false)
 
@@ -423,8 +451,12 @@ function StartDeathMonitor()
             local playerPed = PlayerPedId()
             
             if IsEntityDead(playerPed) or IsPedDeadOrDying(playerPed, 1) then
-                print("Joueur mort détecté, sortie de l'AFK")
-                ESX.ShowNotification("~r~Vous êtes mort, sortie automatique de l'AFK")
+                DebugPrint("Player dead detected, exiting AFK")
+                if Config.core == "ESX" then
+                    ESX.ShowNotification(Config.Messages.your_died)
+                elseif Config.core == "QB" then
+                    QBCore.Functions.Notify(Config.Messages.your_died)
+                end
                 StopAfk()
                 break
             end

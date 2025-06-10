@@ -20,13 +20,17 @@
 - **Randomized Rewards**:
   - 💰 **Money**: $100-300 (85% chance)
   - 🪙 **Items**: water 1-2x (15% chance)
-- **Anti-Cheat Protection**: Server-side validation with automatic ban system
+- **Anti-Cheat Protection**: Server-side validation with automatic kick system
+- **Smart Validation**: Items are checked for existence before being given
+- **Framework Notifications**: Uses native ESX/QBCore notification systems
 
 ### 🛡️ Security Features
 - **Control Disabling**: Weapons and combat actions blocked during AFK
 - **Death Monitoring**: Automatic AFK exit on player death
-- **Anti-Spam Protection**: 3-second cooldown between interactions
+- **Anti-Spam Protection**: Configurable cooldown based on `Config.RewardInterval`
 - **Automatic Cleanup**: Disconnected player data removal
+- **Item Validation**: Prevents crashes by checking item existence before giving rewards
+- **Framework Compatibility**: Enhanced ESX/QBCore player object handling
 
 ### 🔌 Framework Integration
 - **ESX Legacy**: Full compatibility with ESX framework
@@ -86,8 +90,20 @@ Config.TeleportDelay = 1    -- Minutes before teleportation
 Config.Messages = {
     starting_afk = "You will be teleported to AFK zone in 1 minute...",
     teleported = "You are now in AFK mode",
-    reward_received = "You received %s",
-    stopped_afk = "You are no longer in AFK mode"
+    reward_received = "You received %s",  -- Used by ESX/QB-Core notifications
+    stopped_afk = "You are no longer in AFK mode",
+    money_reward = "%d$ in cash"
+    ...
+}
+```
+
+### UI Position Configuration
+```lua
+Config.UI = {
+    timer = {
+        bottom = "18.75vw",  -- Timer position from bottom
+        left = "0.73vw"      -- Timer position from left
+    }
 }
 ```
 
@@ -195,23 +211,25 @@ end
 ## 🎨 User Interface
 
 ### Interface Components
-- **🔄 Circular Timer**: Visual countdown to next reward
-- **🎁 Reward Notifications**: Animated reward display with amounts
+- **🔄 Circular Timer**: Visual countdown to next reward with persistent display
+- **🎁 Framework Notifications**: Uses native ESX/QBCore notification systems
 - **🌊 Smooth Transitions**: Fade in/out effects during teleportation
-- **📱 Responsive Design**: Modern, clean interface that adapts to different screen sizes
+- **📱 Configurable Position**: Customizable timer position via config
+- **🎯 Persistent Messages**: Timer messages remain visible throughout cycles
 
 ### UI Features
 - Real-time reward countdown
-- Animated reward popups
+- Configurable UI positioning
 - Smooth fade transitions
-- Modern visual design
+- Framework-integrated notifications
+- Modern visual design with persistent text display
 
 ## 🔒 Security System
 
 ### Anti-Cheat Measures
 - **Server-Side Validation**: All rewards validated on server
-- **Cooldown Protection**: Minimum 5-minute intervals between rewards
-- **Automatic Kicking**: Instant kick for exploitation attempts
+- **Dynamic Cooldown Protection**: Configurable intervals based on `Config.RewardInterval`
+- **Automatic Kicking**: Instant kick for exploitation attempts with detailed logging
 - **Data Cleanup**: Automatic removal of disconnected player data
 
 ### Monitoring Features
@@ -254,8 +272,9 @@ end
 ## 🔄 Updates & Maintenance
 
 ### Version Information
-- **Current Version**: 1.0.0
+- **Current Version**: 1.1.0
 - **Compatibility**: ESX Legacy & QB-Core
+- **Recent Updates**: Enhanced stability, UI positioning, QBCore fixes
 
 ### Maintenance Tips
 - Regular log monitoring
@@ -282,5 +301,28 @@ This script is provided as-is under standard usage terms. You are free to modify
 
 ---
 
+## 🔄 Recent Updates (v1.1.0)
+
+### 🛠️ Bug Fixes
+- **Fixed QBCore Compatibility**: Resolved `xPlayer.source` being `nil` in QBCore
+- **Enhanced Timer System**: Replaced `os.time()` with `GetGameTimer()` for better reliability
+- **JavaScript Error Resolution**: Fixed DOM element selection issues
+- **Persistent UI Messages**: Timer text no longer disappears after cycles
+- **Item Validation**: Added checks to prevent crashes from invalid items
+
+### ✨ New Features
+- **Configurable UI Position**: Timer position can now be set via `Config.UI`
+- **Dynamic Cooldown System**: Anti-spam protection now uses `Config.RewardInterval`
+- **Enhanced Debug System**: Better logging and error reporting
+- **Framework Notifications**: Integrated with native ESX/QBCore notification systems
+
+### 🔧 Improvements
+- **Better Error Handling**: More robust error checking throughout the script
+- **Performance Optimization**: Reduced resource usage and improved efficiency
+- **Code Cleanup**: Removed redundant notification systems
+- **Enhanced Security**: Better validation and anti-cheat measures
+
+---
+
 **🚀 Developed by HARPIK**  
-*Version 1.0.0 - Professional AFK Management Solution* 
+*Version 1.1.0 - Professional AFK Management Solution* 
